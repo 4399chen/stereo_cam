@@ -20,7 +20,7 @@
 /camera/right/camera_info
 /camera/right/image_raw
 ```
-
+仅可在linux运行
 
 ## 双目相机的标定
 
@@ -40,4 +40,10 @@ rosrun camera_calibration cameracalibrator.py --size 8x6 --square 0.043 right:=/
 
 ```
 ROS_NAMESPACE=camera rosrun stereo_image_proc stereo_image_proc
+```
+
+## launch
+
+```
+roslaunch stereo_cam stereo.launch
 ```
