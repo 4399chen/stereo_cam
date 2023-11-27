@@ -47,3 +47,14 @@ ROS_NAMESPACE=camera rosrun stereo_image_proc stereo_image_proc
 ```
 roslaunch stereo_cam stereo.launch
 ```
+
+## 深度图
+
+做了两种，基于Opencv的SGBM法，和基于Nvidia VPI的深度图。
+
+VPI参考资料详见：
+
+https://docs.nvidia.com/vpi/getting_started.html
+
+性能测试详见：
+https://blog.csdn.net/DCCSDNDC/article/details/134643056?spm=1001.2014.3001.5501
