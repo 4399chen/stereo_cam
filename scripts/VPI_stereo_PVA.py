@@ -1,3 +1,4 @@
+# not good
 import cv2
 import sys
 import vpi
@@ -9,11 +10,17 @@ import rospy
 from sensor_msgs.msg import Image as MsgImage
 from cv_bridge import CvBridge, CvBridgeError
 import message_filters
+import threading
+from concurrent.futures import ThreadPoolExecutor
+
 
 class StereoImageProcessor:
     def __init__(self):
         self.bridge = CvBridge()
         self.pub = rospy.Publisher('/camera/combined_image', MsgImage, queue_size=1)
+        
+        # 创建线程池
+        self.executor = ThreadPoolExecutor(max_workers=8)  # 可以根据需要调整线程数量
 
         # 创建订阅者
         left_image_sub = message_filters.Subscriber('/camera/left/image_rect', MsgImage)
@@ -23,8 +30,11 @@ class StereoImageProcessor:
         ts = message_filters.TimeSynchronizer([left_image_sub, right_image_sub], 10)
         ts.registerCallback(self.callback) 
     
-    # @profile
     def callback(self, left_img_msg, right_img_msg):
+        # 将处理函数提交到线程池
+        self.executor.submit(self.process_images, left_img_msg, right_img_msg)
+
+    def process_images(self, left_img_msg, right_img_msg):
         left_img = self.bridge.imgmsg_to_cv2(left_img_msg, "mono16")
         right_img = self.bridge.imgmsg_to_cv2(right_img_msg, "mono16")
 
@@ -72,11 +82,17 @@ class StereoImageProcessor:
         combined_img_msg = self.bridge.cv2_to_imgmsg(disparityColor, "bgr8")
         combined_img_msg.header.stamp = rospy.Time.now()
         self.pub.publish(combined_img_msg)
+    
+    def close(self):
+        self.executor.shutdown(wait=True)
 
 def main():
     rospy.init_node('stereo_image_combiner', anonymous=True)
     processor = StereoImageProcessor()
-    rospy.spin()
+    try:
+        rospy.spin()
+    finally:
+        processor.close()
 
 if __name__ == '__main__':
     main()
