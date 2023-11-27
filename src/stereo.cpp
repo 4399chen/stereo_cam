@@ -22,31 +22,30 @@ using namespace cv;
 sensor_msgs::CameraInfo getCameraInfoL(void){        // extract cameraInfo.
     sensor_msgs::CameraInfo cam;
 
-    vector<double> D{-0.170127, 0.024090, 0.000306, 0.001427, 0.000000};
+    vector<double> D{-0.169328, 0.024303, 0.000404, 0.000136, 0.000000};
 
     boost::array<double, 9> K = {
-        691.146247, 0.000000, 640.581338,
-        0.000000, 691.905303, 368.062655,
+        349.021453, 0.000000, 336.886781,
+        0.000000, 349.017487, 194.390909,
         0.000000, 0.000000, 1.000000
     };
 
     // Mat p = getOptimalNewCameraMatrix(k, d, Size(1280, 720), 0);        // get rectified projection.
     
     boost::array<double, 12> P = {
-        684.535486, 0.000000, 682.176537, 0.000000,
-        0.000000, 684.535486, 355.036983, 0.000000,
+        344.035285, 0.000000, 335.250198, 0.000000,
+        0.000000, 344.035285, 190.080095, 0.000000,
         0.000000, 0.000000, 1.000000, 0.000000
-		
     };
 
     boost::array<double, 9> r = {
-        0.999888, 0.001631, -0.014880,
-        -0.001612, 0.999998, 0.001261,
-        0.014882, -0.001236, 0.999888
-	};
+        0.999982, 0.001076, 0.005944,
+        -0.001080, 0.999999, 0.000556,
+        -0.005943, -0.000562, 0.999982
+    };
 
-    cam.height = 720;
-    cam.width = 1280;
+    cam.height = 376;
+    cam.width = 672;
     cam.distortion_model = "plumb_bob";
     cam.D = D;
     cam.K = K;
@@ -56,7 +55,7 @@ sensor_msgs::CameraInfo getCameraInfoL(void){        // extract cameraInfo.
     cam.binning_y = 0;
 
     cam.header.frame_id = "left_camera";  //frame_id为camera，也就是相机名字
-    cam.header.stamp = ros::Time::now();
+    // cam.header.stamp = ros::Time::now();
     cam.header.stamp.nsec = 0;
     
     return cam;
@@ -65,30 +64,30 @@ sensor_msgs::CameraInfo getCameraInfoL(void){        // extract cameraInfo.
 sensor_msgs::CameraInfo getCameraInfoR(void){        // extract cameraInfo.
     sensor_msgs::CameraInfo cam;
 
-    vector<double> D{-0.168092, 0.019713, -0.000505, 0.000931, 0.000000};
+    vector<double> D{-0.169697, 0.023447, -0.000227, -0.000223, 0.000000};
 
     boost::array<double, 9> K = {
-        695.453181, 0.000000, 647.137479,
-        0.000000, 696.220713, 346.575235,
-        0.000000, 0.000000, 1.000000
+        350.217450, 0.000000, 338.869043,
+        0.000000, 350.380031, 183.839286,
+        0.000000, 0.000000, 1.000000,
     };
 
     // Mat p = getOptimalNewCameraMatrix(k, d, Size(1280, 720), 0);        // get rectified projection.
     
     boost::array<double, 12> P = {
-        684.535486, 0.000000, 682.176537, -43.371869,
-        0.000000, 684.535486, 355.036983, 0.000000,
-        0.000000, 0.000000, 1.000000, 0.000000
+        344.035285, 0.000000, 335.250198, -21.727708,
+        0.000000, 344.035285, 190.080095, 0.000000,
+        0.000000, 0.000000, 1.000000, 0.000000  
     };
 
     boost::array<double, 9> r = {
-        0.999910, 0.001206, -0.013360,
-        -0.001223, 0.999998, -0.001240,
-        0.013359, 0.001257, 0.999910
-	};
+        0.999990, 0.000756, 0.004409,
+        -0.000753, 1.000000, -0.000561,
+        -0.004410, 0.000557, 0.999990
+    };
 
-    cam.height = 720;
-    cam.width = 1280;
+    cam.height = 376;
+    cam.width  = 672;
     cam.distortion_model = "plumb_bob";
     cam.D = D;
     cam.K = K;
@@ -98,7 +97,7 @@ sensor_msgs::CameraInfo getCameraInfoR(void){        // extract cameraInfo.
     cam.binning_y = 0;
 
     cam.header.frame_id = "right_camera";  //frame_id为camera，也就是相机名字
-    cam.header.stamp = ros::Time::now();
+    // cam.header.stamp = ros::Time::now();
     cam.header.stamp.nsec = 0;
     
     return cam;
@@ -122,19 +121,17 @@ int main(int argc,char** argv)
     sensor_msgs::CameraInfo camera_info_R;
 
     cv::Mat stereo_image,imLeft,imRight;
-    int width=2560;
-    int height=720;
-    int fps=60;
+    int width=1344;
+    int height=376;
+    int fps=100;
  
     // cv::VideoCapture cap(0);
     cv::VideoCapture cap(0 + cv::CAP_V4L2);
 
-    //分辨率
     cap.set(cv::CAP_PROP_FRAME_WIDTH,width);
     cap.set(cv::CAP_PROP_FRAME_HEIGHT,height);
-    //帧率
     cap.set(cv::CAP_PROP_FPS,fps);
-    //视频流格式
+    cap.set(cv::CAP_PROP_BRIGHTNESS, 8);
     cap.set(cv::CAP_PROP_FOURCC,cv::VideoWriter::fourcc('Y','U','Y','2'));
     // cap.set(cv::CAP_PROP_FOURCC,cv::VideoWriter::fourcc('M','J','P','G'));
 
@@ -154,6 +151,9 @@ int main(int argc,char** argv)
 
     //设置发布数据的频率
     ros::Rate loop_rate(fps); 
+
+    camera_info_L = getCameraInfoL();
+    camera_info_R = getCameraInfoR();
  
     while(n.ok())
     {
@@ -166,10 +166,6 @@ int main(int argc,char** argv)
 
         sensor_msgs::ImagePtr msg_L = cv_bridge::CvImage(std_msgs::Header(), "bgr8", imLeft).toImageMsg();
         sensor_msgs::ImagePtr msg_R = cv_bridge::CvImage(std_msgs::Header(), "bgr8", imRight).toImageMsg();
-        
-        //读取当前时间作为图像的时间戳
-        camera_info_L = getCameraInfoL();
-        camera_info_R = getCameraInfoR();
 
         camera_info_L.header.stamp = ros::Time::now();
         camera_info_R.header.stamp = camera_info_L.header.stamp;
@@ -183,6 +179,6 @@ int main(int argc,char** argv)
         pubRi.publish(camera_info_R);
 
         //按照前面设置的频率将程序挂起
-        // loop_rate.sleep();
+        loop_rate.sleep();
     }
 }
