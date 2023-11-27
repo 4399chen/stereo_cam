@@ -41,13 +41,6 @@ ${catkin_LIBRARIES}
 ${OpenCV_LIBS}
 )
 
-# add_executable(stereo_depth_BM src/stereo_depth_BM.cpp)
-# target_link_libraries(stereo_depth_BM
-# ${catkin_LIBRARIES}
-# ${OpenCV_LIBS}
-# ${VPI_LIBRARIES}
-# )
-
 add_executable(stereo_depth_SGBM src/stereo_depth_SGBM.cpp)
 target_link_libraries(stereo_depth_SGBM
 ${catkin_LIBRARIES}
@@ -55,10 +48,6 @@ ${OpenCV_LIBS}
 )
 
 catkin_install_python(PROGRAMS scripts/VPI_stereo.py
-  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-)
-
-catkin_install_python(PROGRAMS scripts/VPI_stereo_CUDA.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
