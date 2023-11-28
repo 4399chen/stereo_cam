@@ -29,7 +29,7 @@
 https://github.com/ros-perception/image_pipeline
 
 ```
-rosrun camera_calibration cameracalibrator.py --size 8x6 --square 0.043 right:=/camera/right/image_raw left:=/camera/left/image_raw
+rosrun camera_calibration cameracalibrator.py --size 8x6 --square 0.036015 right:=/camera/right/image_raw left:=/camera/left/image_raw
 ```
 
 获取到两个相机的四大矩阵
